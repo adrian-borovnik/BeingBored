@@ -33,11 +33,9 @@ func printActivities(activities []Activity) {
 	t.Render()
 }
 
-func fetchActivity(wg *sync.WaitGroup, ch chan Activity) {
+func fetchActivity(ch chan<- Activity, wg *sync.WaitGroup) {
 
-	defer func() {
-		wg.Done()
-	}()
+	defer wg.Done()
 
 	const BORED_API_URL string = "http://www.boredapi.com/api/activity/"
 
@@ -54,6 +52,7 @@ func fetchActivity(wg *sync.WaitGroup, ch chan Activity) {
 
 	var activity Activity
 	json.Unmarshal(data, &activity)
+
 	ch <- activity
 }
 
@@ -63,18 +62,20 @@ func main() {
 	fmt.Print("Enter a number of activities: ")
 	fmt.Scan(&activityCount)
 
-	var wg sync.WaitGroup
 	ch := make(chan Activity, activityCount)
+	var wg sync.WaitGroup
 
 	startTime := time.Now()
 
 	for i := 0; i < int(activityCount); i++ {
 		wg.Add(1)
-		go fetchActivity(&wg, ch)
+		go fetchActivity(ch, &wg)
 	}
 
-	wg.Wait()
-	close(ch)
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
 
 	var activities []Activity
 	for activity := range ch {
