@@ -19,16 +19,16 @@ type Activity struct {
 	Participants  uint8   `json:"participants"`
 	Accessibility float32 `json:"accessibility"`
 	Price         float32 `json:"price"`
-	Link          string  `json:"link"`
+	// Link          string  `json:"link"`
 	// Key           string  `json:"key"`
 }
 
 func printActivities(activities []Activity) {
 	t := table.NewWriter()
 	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"#", "Activity", "Type", "Participants", "Accessibility", "Price", "Link"})
+	t.AppendHeader(table.Row{"#", "Activity", "Type", "Participants", "Accessibility", "Price"})
 	for i, activity := range activities {
-		t.AppendRow(table.Row{i + 1, activity.Activity, activity.Type, activity.Participants, activity.Accessibility, activity.Price, activity.Link})
+		t.AppendRow(table.Row{i + 1, activity.Activity, activity.Type, activity.Participants, activity.Accessibility, activity.Price})
 	}
 	t.Render()
 }
@@ -59,14 +59,17 @@ func fetchActivity(wg *sync.WaitGroup, ch chan Activity) {
 }
 
 func main() {
-	const ACTIVITY_COUNT int = 10
+	var activityCount int
+
+	fmt.Print("Enter a number of wanted activities: ")
+	fmt.Scan(&activityCount)
 
 	var wg sync.WaitGroup
-	ch := make(chan Activity, ACTIVITY_COUNT)
+	ch := make(chan Activity, activityCount)
 
 	startTime := time.Now()
 
-	for i := 0; i < ACTIVITY_COUNT; i++ {
+	for i := 0; i < activityCount; i++ {
 		wg.Add(1)
 		go fetchActivity(&wg, ch)
 	}
