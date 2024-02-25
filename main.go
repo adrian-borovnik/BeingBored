@@ -58,7 +58,7 @@ func fetchActivity(wg *sync.WaitGroup, ch chan Activity) {
 }
 
 func main() {
-	var activityCount int
+	var activityCount uint
 
 	fmt.Print("Enter a number of activities: ")
 	fmt.Scan(&activityCount)
@@ -68,7 +68,7 @@ func main() {
 
 	startTime := time.Now()
 
-	for i := 0; i < activityCount; i++ {
+	for i := 0; i < int(activityCount); i++ {
 		wg.Add(1)
 		go fetchActivity(&wg, ch)
 	}
